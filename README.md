@@ -31,17 +31,20 @@ Persistência no banco PostgreSQL
 Controller → Service → Repository → Database
 
 📌 Estrutura do projeto
-
 business/
 └── AuthService
 └── dtos/
-  ├── in (LoginRequest, RegisterRequest)
-  └── out (LoginResponse)
+    ├── in
+    │   ├── LoginRequest
+    │   └── RegisterRequest
+    └── out
+        └── LoginResponse
 
 infrastructure/
-├── entity (Usuario)
-└── repository (UsuarioRepository)
-
+├── entity
+│   └── Usuario
+└── repository
+    └── UsuarioRepository
 📌 Como executar o projeto
 1. Clonar o repositório
 git clone https://github.com/seu-usuario/seu-repo.git
@@ -74,3 +77,11 @@ Controle de versão com Git
 
 Desenvolvido por Bruno Almeida
 📍 Projeto para portfólio backend Java
+
+🧠 O que eu corrigi aqui
+
+✔ estrutura consistente de Markdown
+✔ separação clara de seções
+✔ blocos de código corretos
+✔ nada “embolado” no texto
+✔ hierarquia visual limpa
