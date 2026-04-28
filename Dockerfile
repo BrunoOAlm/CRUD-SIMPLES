@@ -1,4 +1,3 @@
-# Stage 1: build
 FROM gradle:8.7-jdk17 AS build
 
 WORKDIR /app
@@ -7,7 +6,6 @@ COPY . .
 
 RUN gradle build -x test
 
-# Stage 2: run
 FROM eclipse-temurin:17-jre
 
 WORKDIR /app
