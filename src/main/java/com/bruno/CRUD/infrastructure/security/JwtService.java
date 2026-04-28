@@ -1,45 +1,59 @@
 package com.bruno.CRUD.infrastructure.security;
 
-
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.security.Key;
+import java.util.Date;
 
 @Service
 public class JwtService {
 
-    private final String SECRET = "sua-chave-secreta";
+    // 🔐 chave (tem que ter pelo menos 32 caracteres)
+    private final String SECRET_KEY = "minha_chave_super_secreta_123456789012345";
 
-    public String generateToken(String email){
-        return JWT.create()
-                .withSubject(email)
-                .withExpiresAt(generateExpirationDate())
-                .sign(Algorithm.HMAC256(SECRET));
-
+    // 🔹 gera chave de assinatura
+    private Key getSignKey() {
+        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
 
-    public void validateToken(String token) {
-        JWT.require(Algorithm.HMAC256(SECRET))
+    // 🔥 GERA TOKEN
+    public String generateToken(String email) {
+        return Jwts
+                .builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1h
+                .signWith(getSignKey())
+                .compact();
+    }
+
+    // 🔹 Extrai email do token
+    public String extractUsername(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
+    // 🔹 Valida token
+    public boolean isTokenValid(String token) {
+        return !isTokenExpired(token);
+    }
+
+    // 🔹 Verifica se expirou
+    private boolean isTokenExpired(String token) {
+        return extractAllClaims(token)
+                .getExpiration()
+                .before(new Date());
+    }
+
+    // 🔹 Extrai dados do token
+    private Claims extractAllClaims(String token) {
+        return Jwts
+                .parserBuilder()
+                .setSigningKey(getSignKey())
                 .build()
-                .verify(token);
+                .parseClaimsJws(token)
+                .getBody();
     }
-
-    private Instant generateExpirationDate(){
-        return LocalDateTime.now()
-                .plusHours(2)
-                .toInstant(ZoneOffset.of("-03:00"));
-    }
-        public String getEmailFromToken(String token) {
-            return JWT.require(Algorithm.HMAC256(SECRET))
-                    .build()
-                    .verify(token)
-                    .getSubject();
-        }
-
-    }
-
-
+}

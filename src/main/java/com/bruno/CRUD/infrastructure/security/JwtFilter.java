@@ -11,31 +11,40 @@ import java.io.IOException;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
+
     private final JwtService jwtService;
 
     public JwtFilter(JwtService jwtService){
         this.jwtService = jwtService;
     }
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+
+        // 🔥 LIBERA AUTH (login/register)
+        if (path.contains("/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
 
-        // 🔥 verifica se tem Bearer token
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
             String token = authHeader.substring(7);
 
             try {
-                jwtService.validateToken(token);
-                String email = jwtService.getEmailFromToken(token);
+                if (jwtService.isTokenValid(token)) {
+                    String email = jwtService.extractUsername(token);
+                    // 🔐 futuramente você coloca autenticação aqui
+                }
             } catch (Exception e) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
+                // 🔥 NÃO BLOQUEIA AQUI
             }
         }
 
